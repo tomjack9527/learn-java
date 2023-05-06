@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>学生检索页面</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@next"></script>
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="container">
+        <h1 class="text-center mb-4">学生检索页面</h1>
+        <form>
+            <div class="mb-3">
+                <label for="name" class="form-label">姓名：</label>
+                <input type="text" id="name" v-model="search.name" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="id" class="form-label">学号：</label>
+                <input type="text" id="id" v-model="search.stuNumber" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="major" class="form-label">专业：</label>
+                <select class="form-control" v-model="search.major">
+                    <option v-for="major in majors" :value="major">{{ major.name }}</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="college" class="form-label">学院：</label>
+                <select class="form-control" v-model="search.school">
+                    <option v-for="school in schools" :value="school">{{ school.name }}</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="type" class="form-label">类型：</label>
+                <select id="type" v-model="search.stuType" class="form-select">
+                    <option value="本科生">本科生</option>
+                    <option value="研究生">研究生</option>
+                    <option value="博士生">博士生</option>
+                </select>
+            </div>
+            <button type="button" @click="searchStudents" class="btn btn-primary">搜索</button>
+        </form>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>姓名</th>
+                    <th>学号</th>
+                    <th>专业</th>
+                    <th>学院</th>
+                    <th>类型</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="student in students" :key="student.id">
+                    <td>{{ student.name }}</td>
+                    <td>{{ student.id }}</td>
+                    <td>{{ student.major.name }}</td>
+                    <td>{{ student.school.name }}</td>
+                    <td>{{ student.stuType }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    students: [],
+                    schools: [],
+                    majors: [],
+                    search: {
+                        name: '',
+                        stuNumber: '',
+                        major: null,
+                        school: null,
+                        stuType: ''
+                    }
+                }
+            },
+            async mounted() {
+                await this.getData();
+            },
+            methods: {
+                async searchStudents() {
+                    this.students = await this.sendRequest("/student/search", "POST", this.search);
+                },
+                async getData() {
+                    this.students = await this.sendRequest("/student/getall", "GET");
+                    this.majors = await this.sendRequest("/major/getall", "GET");
+                    this.schools = await this.sendRequest("/school/getall", "GET");
+                },
+                async sendRequest(method, type, data, text) {
+                    var res = await fetch(method, {
+                        method: type,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: data ? JSON.stringify(data) : undefined
+                    });
+                    if (text) {
+                        return await res.text();
+                    } else {
+                        return await res.json();
+                    }
+                }
+            }
+        });
+        app.mount('#app');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/3.2.0/vue.global.prod.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.1.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <h1 class="text-center my-4">Student Management System</h1>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3 class="my-3">Student List</h3>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Number</th>
+                                <th>Major</th>
+                                <th>IdCard</th>
+                                <th>Gender</th>
+                                <th>ClassName</th>
+                                <th>Type</th>
+                                <th>Enrollment Date</th>
+                                <th>Phone Number</th>
+                                <th>School</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="student in students" :key="student.id">
+                                <td>{{ student.id }}</td>
+                                <td>{{ student.name }}</td>
+                                <td>{{ student.stuNumber }}</td>
+                                <td>{{ student.major.name }}</td>
+                                <td>{{ student.idCard }}</td>
+                                <td>{{ student.gender }}</td>
+                                <td>{{ student.className }}</td>
+                                <td>{{ student.stuType }}</td>
+                                <td>{{ student.enrollmentDate }}</td>
+                                <td>{{ student.phoneNumber }}</td>
+                                <td>{{ student.school.name }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary" @click="editStudent(student)">Edit</button>
+                                    <button class="btn btn-sm btn-danger"
+                                        @click="deleteStudent(student.id)">Delete</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <h3 class="my-3">Add Student</h3>
+                    <form @submit.prevent="addStudent">
+                        <div class="form-group">
+                            <label for="name">姓名:</label>
+                            <input type="text" class="form-control" v-model="newStudent.name" id="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="stuNumber">学号:</label>
+                            <input type="text" class="form-control" v-model="newStudent.stuNumber" id="stuNumber"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label for="majorId">专业:</label>
+                            <select class="form-control" v-model="newStudent.major">
+                                <option v-for="major in majors" :value="major">{{ major.name }}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="idCard">身份证号:</label>
+                            <input type="text" class="form-control" v-model="newStudent.idCard" id="idCard" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">性别:</label>
+                            <select class="form-control" v-model="newStudent.gender" id="gender" required>
+                                <option value="">请选择</option>
+                                <option value="男">男</option>
+                                <option value="女">女</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="className">班级名称:</label>
+                            <input type="text" class="form-control" v-model="newStudent.className" id="className"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label for="stuType">学生类型:</label>
+                            <select class="form-control" v-model="newStudent.stuType" id="stuType" required>
+                                <option value="">请选择</option>
+                                <option value="本科生">本科生</option>
+                                <option value="研究生">研究生</option>
+                                <option value="博士生">博士生</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="enrollmentDate">入学日期:</label>
+                            <input type="date" class="form-control" v-model="newStudent.enrollmentDate"
+                                id="enrollmentDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phoneNumber">手机号:</label>
+                            <input type="text" class="form-control" v-model="newStudent.phoneNumber" id="phoneNumber"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label for="schoolId">学院:</label>
+                            <select class="form-control" v-model="newStudent.school">
+                                <option v-for="school in schools" :value="school">{{ school.name }}</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal" id="editModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <form @submit.prevent="updateStudent">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Edit Student</h5>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="name">姓名:</label>
+                                <input type="text" class="form-control" v-model="selectedStudent.name" id="name"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="stuNumber">学号:</label>
+                                <input type="text" class="form-control" v-model="selectedStudent.stuNumber"
+                                    id="stuNumber" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="majorId">专业:</label>
+                                <select class="form-control" v-model="selectedStudent.major">
+                                    <option v-for="major in majors" :value="major">{{ major.name }}</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="idCard">身份证号:</label>
+                                <input type="text" class="form-control" v-model="selectedStudent.idCard" id="idCard"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="gender">性别:</label>
+                                <select class="form-control" v-model="selectedStudent.gender" id="gender" required>
+                                    <option value="">请选择</option>
+                                    <option value="男">男</option>
+                                    <option value="女">女</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="className">班级名称:</label>
+                                <input type="text" class="form-control" v-model="selectedStudent.className"
+                                    id="className" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="stuType">学生类型:</label>
+                                <select class="form-control" v-model="selectedStudent.stuType" id="stuType" required>
+                                    <option value="">请选择</option>
+                                    <option value="本科生">本科生</option>
+                                    <option value="研究生">研究生</option>
+                                    <option value="博士生">博士生</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="enrollmentDate">入学日期:</label>
+                                <input type="date" class="form-control" v-model="selectedStudent.enrollmentDate"
+                                    id="enrollmentDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phoneNumber">手机号:</label>
+                                <input type="text" class="form-control" v-model="selectedStudent.phoneNumber"
+                                    id="phoneNumber" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="schoolId">学院:</label>
+                                <select class="form-control" v-model="selectedStudent.school">
+                                    <option v-for="school in schools" :value="school">{{ school.name }}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    students: [],
+                    newStudent: {
+                        id: "",
+                        name: "",
+                        stuNumber: "",
+                        major: null,
+                        idCard: "",
+                        gender: "",
+                        className: "",
+                        stuType: "",
+                        enrollmentDate: null,
+                        phoneNumber: "",
+                        school: null
+                    },
+                    selectedStudent: {
+                        id: "",
+                        name: "",
+                        stuNumber: "",
+                        major: null,
+                        idCard: "",
+                        gender: "",
+                        className: "",
+                        stuType: "",
+                        enrollmentDate: null,
+                        phoneNumber: "",
+                        school: null
+                    },
+                };
+            },
+            async mounted() {
+                await this.getData();
+            },
+            methods: {
+                async addStudent() {
+                    const newId = this.students.length > 0 ? this.students[this.students.length - 1].id + 1 : 1;
+                    await this.sendRequest("/student/add", "POST", this.newStudent, true);
+                    alert("添加成功");
+                    this.students.push(this.newStudent);
+                    this.newStudent.name = '';
+                },
+                editStudent(student) {
+                    this.selectedStudent = JSON.parse(JSON.stringify(student));
+                    $('#editModal').modal('show');
+                },
+                async updateStudent() {
+                    const index = this.students.findIndex(student => student.id === this.selectedStudent.id);
+                    this.students[index] = JSON.parse(JSON.stringify(this.selectedStudent));
+                    $('#editModal').modal('hide');
+                    await this.sendRequest(`/student/${this.students[index].id}`, "PUT", this.students[index], true);
+                    alert("修改成功");
+                },
+                async deleteStudent(id) {
+                    const index = this.students.findIndex(student => student.id === id);
+                    this.students[index].deleteStatus = true;
+                    await this.sendRequest(`/student/${this.students[index].id}`, "DELETE", undefined, true);
+                    alert("删除成功，已标记");
+                },
+                async getData() {
+                    this.students = await this.sendRequest("/student/getall", "GET");
+                    this.majors = await this.sendRequest("/major/getall", "GET");
+                    this.schools = await this.sendRequest("/school/getall", "GET");
+                },
+                async sendRequest(method, type, data, text) {
+                    var res = await fetch(method, {
+                        method: type,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: data ? JSON.stringify(data) : undefined
+                    });
+                    if (text) {
+                        return await res.text();
+                    } else {
+                        return await res.json();
+                    }
+                }
+            },
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+
+</html>

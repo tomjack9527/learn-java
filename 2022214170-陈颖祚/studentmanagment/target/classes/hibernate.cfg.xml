@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration SYSTEM "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- 数据库连接信息 -->
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/studentmanagment?useSSL=false&amp;serverTimezone=Asia/Shanghai</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password">6CC2MrB6cmw11884</property>
+        <property name="hibernate.enable_lazy_load_no_trans">true</property>
+        <mapping class="com.example.entity.Student"/>
+        <mapping class="com.example.entity.Major"/>
+        <mapping class="com.example.entity.School"/>
+    </session-factory>
+</hibernate-configuration>
